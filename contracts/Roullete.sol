@@ -63,7 +63,6 @@ contract RinkebyRoullete {
             player: msg.sender
         }));
         betHasBeenMade = true;
-
         accountBalance[msg.sender] == _bAmount;
 
     }
@@ -90,13 +89,13 @@ contract RinkebyRoullete {
         //make sure bet exists
         require(betHasBeenMade);
 
+        betHasBeenMade = false;
+
+        //get random number
+        //check to see if user has won
+        //if they have, payout
+        //if they didnt, put their account balance to 0
+
     }
-
-    function creatorKill() public {
-        require(msg.sender == rouletteOwner);
-        selfdestruct(rouletteOwner);
-     }
-
-
 
 }
