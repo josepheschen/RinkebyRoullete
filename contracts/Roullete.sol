@@ -38,7 +38,8 @@ contract RinkebyRoullete {
         address player;
     }
 
-    Bet[] bets;
+    Bet currentBet;
+    bool betHasBeenMade = false;
 
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
@@ -55,12 +56,13 @@ contract RinkebyRoullete {
         require(_bSpecifics >= 0 && _bSpecifics <= acceptableBetSpecifics[_bType]);
 
 
-        bets.push(Bet({
+        currentBet = (Bet({
             betType: _bType,
             betAmount: _bAmount,
             betSpecifics: _bSpecifics,
             player: msg.sender
         }));
+        betHasBeenMade = true;
 
         accountBalance[msg.sender] == _bAmount;
 
@@ -86,7 +88,7 @@ contract RinkebyRoullete {
 
     function roulleteRoll() public {
         //make sure bet exists
-        require(bets.length > 0);
+        require(betHasBeenMade);
 
     }
 
