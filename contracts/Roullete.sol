@@ -1,6 +1,9 @@
-contract RinkebyRoullete {
+pragma solidity ^0.5.16;
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 
-    mapping (address => uint256) accountBalance;
+contract RinkebyRoullete is usingOraclize {
+
+    mapping (address => uint256) public accountBalance;
     address payable rouletteOwner;
 
     // All different types of payout multipliers
@@ -39,17 +42,15 @@ contract RinkebyRoullete {
     }
 
     Bet currentBet;
-    bool betHasBeenMade = false;
+    bool public betHasBeenMade = false;
 
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
         //require(msg.value / 1000000000000000000 /* this is the eth to wei conversion, now our units are in ETH*/  == _bAmount);
 
-        require(msg.value > 0);
+        require(msg.value > 10000000000000000 /* this is 0.01 ETH */);
         uint256 _bAmount = msg.value;
 
-        //and that its a substantial bet
-        require(_bAmount > 10000000000000000 /* this is 0.01 ETH */ );
         //make sure the betType is valid as well
         require(_bType >= 0 && _bType <= 4);
         //make sure the betSpecifics are also valid
@@ -71,7 +72,7 @@ contract RinkebyRoullete {
         require(msg.value > 1);
     }
 
-    function cashOut() public {
+    function cashOut() public payable{
         address payable sender = msg.sender;
         uint256 ethBalance = accountBalance[sender];
         require(ethBalance > 0);
@@ -84,6 +85,11 @@ contract RinkebyRoullete {
         return address(this).balance;
     }
 
+    function houseCashOut() payable public {
+        require(msg.sender == rouletteOwner);
+        rouletteOwner.transfer(address(this).balance);
+    }
+
 
     function roulleteRoll() public {
         //make sure bet exists
@@ -92,10 +98,32 @@ contract RinkebyRoullete {
         betHasBeenMade = false;
 
         //get random number
+        update();
         //check to see if user has won
+
+
         //if they have, payout
-        //if they didnt, put their account balance to 0
+        //if they didnt, put their account balance to 0, we already have the money because its part of the contract now
 
     }
+
+    uint256 public randomNumber;
+    string public temperature;
+
+    event newOraclizeQuery(string description);
+    event RandomNumber(uint256 number);
+
+    function __callback(bytes32 myid, uint256 result) public {
+        require(msg.sender == oraclize_cbAddress());
+        randomNumber = result;
+        emit RandomNumber(randomNumber);
+        // do something with the temperature measure..
+    }
+
+    function update() payable public {
+        emit newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+        oraclize_query("WolframAlpha", "random number between 0 and 36");
+    }
+
 
 }
