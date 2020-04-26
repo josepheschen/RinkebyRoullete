@@ -1,7 +1,10 @@
-contract RinkebyRoullete {
+pragma solidity ^0.5.16;
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+
+contract RinkebyRoullete is usingOraclize {
 
     mapping (address => uint256) accountBalance;
-    address payable rouletteOwner;
+    address rouletteOwner;
 
     // All different types of payout multipliers
     uint[] winningsMultipliers;
@@ -71,7 +74,7 @@ contract RinkebyRoullete {
         require(msg.value > 1);
     }
 
-    function cashOut() public {
+    function cashOut() public payable{
         address payable sender = msg.sender;
         uint256 ethBalance = accountBalance[sender];
         require(ethBalance > 0);
@@ -92,10 +95,31 @@ contract RinkebyRoullete {
         betHasBeenMade = false;
 
         //get random number
+        update();
         //check to see if user has won
+
+
         //if they have, payout
         //if they didnt, put their account balance to 0
 
     }
+
+    uint256 public randomNumber;
+
+    event newOraclizeQuery(string description);
+    event RandomNumber(uint256 number);
+
+    function __callback(uint256 result) public {
+        require(msg.sender == oraclize_cbAddress());
+        randomNumber = result;
+        emit RandomNumber(randomNumber);
+        // do something with the temperature measure..
+    }
+
+    function update() payable public {
+        emit newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+        oraclize_query("WolframAlpha", "random number between 0 and 36");
+    }
+
 
 }
