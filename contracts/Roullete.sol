@@ -3,8 +3,8 @@ import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 
 contract RinkebyRoullete is usingOraclize {
 
-    mapping (address => uint256) accountBalance;
-    address rouletteOwner;
+    mapping (address => uint256) public accountBalance;
+    address payable rouletteOwner;
 
     // All different types of payout multipliers
     uint[] winningsMultipliers;
@@ -42,17 +42,15 @@ contract RinkebyRoullete is usingOraclize {
     }
 
     Bet currentBet;
-    bool betHasBeenMade = false;
+    bool public betHasBeenMade = false;
 
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
         //require(msg.value / 1000000000000000000 /* this is the eth to wei conversion, now our units are in ETH*/  == _bAmount);
 
-        require(msg.value > 0);
+        require(msg.value > 10000000000000000 /* this is 0.01 ETH */);
         uint256 _bAmount = msg.value;
 
-        //and that its a substantial bet
-        require(_bAmount > 10000000000000000 /* this is 0.01 ETH */ );
         //make sure the betType is valid as well
         require(_bType >= 0 && _bType <= 4);
         //make sure the betSpecifics are also valid
@@ -87,6 +85,11 @@ contract RinkebyRoullete is usingOraclize {
         return address(this).balance;
     }
 
+    function houseCashOut() payable public {
+        require(msg.sender == rouletteOwner);
+        rouletteOwner.transfer(address(this).balance);
+    }
+
 
     function roulleteRoll() public {
         //make sure bet exists
@@ -100,16 +103,17 @@ contract RinkebyRoullete is usingOraclize {
 
 
         //if they have, payout
-        //if they didnt, put their account balance to 0
+        //if they didnt, put their account balance to 0, we already have the money because its part of the contract now
 
     }
 
     uint256 public randomNumber;
+    string public temperature;
 
     event newOraclizeQuery(string description);
     event RandomNumber(uint256 number);
 
-    function __callback(uint256 result) public {
+    function __callback(bytes32 myid, uint256 result) public {
         require(msg.sender == oraclize_cbAddress());
         randomNumber = result;
         emit RandomNumber(randomNumber);
