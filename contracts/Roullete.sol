@@ -43,6 +43,12 @@ contract RinkebyRoullete is usingOraclize {
 
     Bet currentBet;
     bool public betHasBeenMade = false;
+    
+    // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
+    uint256 public randomNumber;
+    
+    event LogNewProvableQuery(string description);
+    event LogNewRandomNumber(string number);
 
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
@@ -98,7 +104,7 @@ contract RinkebyRoullete is usingOraclize {
         betHasBeenMade = false;
 
         //get random number
-        update();
+        generateRandomNumber();
         //check to see if user has won
 
 
@@ -107,22 +113,15 @@ contract RinkebyRoullete is usingOraclize {
 
     }
 
-    uint256 public randomNumber;
-    string public temperature;
-
-    event newOraclizeQuery(string description);
-    event RandomNumber(uint256 number);
-
-    function __callback(bytes32 myid, uint256 result) public {
-        require(msg.sender == oraclize_cbAddress());
-        randomNumber = result;
-        emit RandomNumber(randomNumber);
-        // do something with the temperature measure..
+    function __callback(bytes32 _myid, string memory _result) public{
+        require(msg.sender == provable_cbAddress());
+        emit LogNewRandomNumber(_result);
+        randomNumber = parseInt(_result);
     }
 
-    function update() payable public {
-        emit newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-        oraclize_query("WolframAlpha", "random number between 0 and 36");
+    function generateRandomNumber() public payable {
+        emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
+        provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
     }
 
 
