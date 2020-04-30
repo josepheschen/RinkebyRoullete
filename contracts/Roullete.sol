@@ -46,8 +46,15 @@ contract RinkebyRoullete is usingProvable {
 
     Bet currentBet;
 
+    // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
+    uint256 public randomNumber;
+
+    event LogNewProvableQuery(string description);
+    event LogNewRandomNumber(string number);
+
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         require(betHasBeenMade == false);
+        betHasBeenMade = true;
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
         //require(msg.value / 1000000000000000000 /* this is the eth to wei conversion, now our units are in ETH*/  == _bAmount);
 
@@ -66,7 +73,7 @@ contract RinkebyRoullete is usingProvable {
             betSpecifics: _bSpecifics,
             player: msg.sender
         }));
-        betHasBeenMade = true;
+
         accountBalance[msg.sender] == _bAmount;
 
     }
@@ -96,9 +103,9 @@ contract RinkebyRoullete is usingProvable {
 
     function roulleteRoll() public {
         //make sure bet exists
-        require(betHasBeenMade);
-
+        require(betHasBeenMade == true);
         betHasBeenMade = false;
+
 
         //get random number
         generateRandomNumber();
@@ -113,6 +120,7 @@ contract RinkebyRoullete is usingProvable {
         } else {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
         }
+
     }
 
     function didWin() private view returns (bool) {
@@ -155,12 +163,6 @@ contract RinkebyRoullete is usingProvable {
         }
         return false;
     }
-
-// Leaving this public for testing. Will want to make non public after we are sure that random number generation works
-    uint256 public randomNumber;
-
-    event LogNewProvableQuery(string description);
-    event LogNewRandomNumber(string number);
 
     function __callback(bytes32 _myid, string memory _result) public{
         require(msg.sender == provable_cbAddress());
