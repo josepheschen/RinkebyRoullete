@@ -13,11 +13,14 @@ contract RinkebyRoullete is usingProvable {
 
     bool public betHasBeenMade;
 
+    bool public betting;
+
     constructor() public {
         rouletteOwner = msg.sender;
         winningsMultipliers = [35, 11, 3, 2, 2];
         acceptableBetSpecifics = [36, 11 , 2, 1, 1];
         betHasBeenMade = false;
+        betting = false;
     }
 
     /* We are going to be handling 5 different kinds of bets:
@@ -98,6 +101,7 @@ contract RinkebyRoullete is usingProvable {
     function roulleteRoll() public payable {
         require(msg.sender == currentBet.player);
         require(betHasBeenMade == true);
+        betting = true;
 
         emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
         provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
