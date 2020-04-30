@@ -156,6 +156,7 @@ contract RinkebyRoullete is usingProvable {
         return false;
     }
 
+
 // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
     uint256 public randomNumber;
 
