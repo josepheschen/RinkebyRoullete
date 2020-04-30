@@ -45,16 +45,12 @@ contract RinkebyRoullete is usingProvable {
     }
 
     Bet currentBet;
-<<<<<<< Updated upstream
-    bool public betHasBeenMade = false;
-=======
 
     // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
     uint256 public randomNumber;
 
     event LogNewProvableQuery(string description);
     event LogNewRandomNumber(string number);
->>>>>>> Stashed changes
 
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         require(betHasBeenMade == false);
@@ -87,11 +83,11 @@ contract RinkebyRoullete is usingProvable {
 
     function cashOut() public payable{
         address payable sender = msg.sender;
-        uint256 ethBalance = accountBalance[sender];
-        require(ethBalance > 0);
-        require(ethBalance <= address(this).balance);
+        uint256 balance = accountBalance[sender];
+        require(balance > 0);
+        require(balance <= address(this).balance);
         accountBalance[sender] = 0;
-        sender.transfer(ethBalance);
+        sender.transfer(balance);
   }
 
     function viewContractBalance() public view returns (uint256) {
@@ -111,7 +107,7 @@ contract RinkebyRoullete is usingProvable {
         betHasBeenMade = false;
 
         //get random number
-        update();
+        generateRandomNumber();
         //check to see if user has won
 
         bool didUserWin = didWin();
@@ -136,13 +132,13 @@ contract RinkebyRoullete is usingProvable {
             if((randomNumber - 1) / 3 == currentBet.betSpecifics) return true;
 
         } else if (currentBet.betType == 2) { // column
-            if (randomNumber % 3 == 1) {
+            if (randomNumber % 3 == 1) { // first col
                 if (currentBet.betSpecifics == 0) return true;
             }
-            if (randomNumber % 3 == 2) {
+            if (randomNumber % 3 == 2) { // second col
                 if (currentBet.betSpecifics == 1) return true;
             }
-            if (randomNumber % 3 == 0) {
+            if (randomNumber % 3 == 0) { // third col
                 return (currentBet.betSpecifics == 2);
             }
         } else if (currentBet.betType == 3) { // color
@@ -160,28 +156,21 @@ contract RinkebyRoullete is usingProvable {
                 }
             }
         } else if (currentBet.betType == 4) { // odd/even
-            if( (currentBet.betSpecifics == 0) && (randomNumber % 2 == 0)) return true;
-            else if ((currentBet.betSpecifics == 1) && (randomNumber % 2 == 1)) return true;
+            if( (currentBet.betSpecifics == 0) && (randomNumber % 2 == 0)) return true; // even
+            else if ((currentBet.betSpecifics == 1) && (randomNumber % 2 == 1)) return true; // odd
         }
         return false;
     }
 
-    uint256 public randomNumber;
-    string public temperature;
-
-    event newOraclizeQuery(string description);
-    event RandomNumber(uint256 number);
-
-    function __callback(bytes32 myid, uint256 result) public {
-        require(msg.sender == oraclize_cbAddress());
-        randomNumber = result;
-        emit RandomNumber(randomNumber);
-        // do something with the temperature measure..
+    function __callback(bytes32 _myid, string memory _result) public{
+        require(msg.sender == provable_cbAddress());
+        emit LogNewRandomNumber(_result);
+        randomNumber = parseInt(_result);
     }
 
-    function update() payable public {
-        emit newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-        oraclize_query("WolframAlpha", "random number between 0 and 36");
+    function generateRandomNumber() public payable {
+        emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
+        provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
     }
 
 
