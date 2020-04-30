@@ -164,6 +164,12 @@ contract RinkebyRoullete is usingProvable {
         return false;
     }
 
+// Leaving this public for testing. Will want to make non public after we are sure that random number generation works
+    uint256 public randomNumber;
+
+    event LogNewProvableQuery(string description);
+    event LogNewRandomNumber(string number);
+
     function __callback(bytes32 _myid, string memory _result) public{
         require(msg.sender == provable_cbAddress());
         emit LogNewRandomNumber(_result);
