@@ -50,11 +50,12 @@ contract RinkebyRoullete is usingProvable {
 
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public notBetting {
         require(betHasBeenMade == false);
+        require(msg.value > 10000000000000000 /* this is 0.01 ETH */);
+        require(msg.value <= 2000000000000000000 /* no bets higher than 2 ETH */);
         betHasBeenMade = true;
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
         //require(msg.value / 1000000000000000000 /* this is the eth to wei conversion, now our units are in ETH*/  == _bAmount);
 
-        require(msg.value > 10000000000000000 /* this is 0.01 ETH */);
         uint256 _bAmount = msg.value;
 
         //make sure the betType is valid as well
@@ -78,7 +79,7 @@ contract RinkebyRoullete is usingProvable {
         require(msg.value > 1);
     }
 
-    function cashOut() public payable notBetting{
+    function cashOut() public payable notBetting {
         address payable sender = msg.sender;
         uint256 balance = accountBalance[sender];
         require(balance > 0);
