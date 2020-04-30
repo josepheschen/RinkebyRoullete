@@ -12,8 +12,7 @@ contract RinkebyRoullete is usingProvable {
     uint[] acceptableBetSpecifics;
 
     bool public betHasBeenMade;
-
-    bool public betting;
+    bool betting;
 
     constructor() public {
         rouletteOwner = msg.sender;
@@ -49,7 +48,7 @@ contract RinkebyRoullete is usingProvable {
 
     Bet public currentBet;
 
-    function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
+    function placeBet(uint8 _bType, uint64 _bSpecifics) payable public notBetting {
         require(betHasBeenMade == false);
         betHasBeenMade = true;
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
@@ -79,7 +78,7 @@ contract RinkebyRoullete is usingProvable {
         require(msg.value > 1);
     }
 
-    function cashOut() public payable{
+    function cashOut() public payable notBetting{
         address payable sender = msg.sender;
         uint256 balance = accountBalance[sender];
         require(balance > 0);
@@ -92,13 +91,13 @@ contract RinkebyRoullete is usingProvable {
         return address(this).balance;
     }
 
-    function houseCashOut() payable public {
+    function houseCashOut() payable public notBetting {
         require(msg.sender == rouletteOwner);
         rouletteOwner.transfer(address(this).balance);
     }
 
 
-    function roulleteRoll() public payable {
+    function roulleteRoll() public payable notBetting {
         require(msg.sender == currentBet.player);
         require(betHasBeenMade == true);
         betting = true;
@@ -159,8 +158,7 @@ contract RinkebyRoullete is usingProvable {
     event LogNewProvableQuery(string description);
     event LogNewRandomNumber(string number);
 
-    event Winning(string description);
-    event Losing(string description);
+    event BettingResult(string description);
 
     function __callback(bytes32 _myid, string memory _result) public {
         require(msg.sender == provable_cbAddress());
@@ -174,13 +172,18 @@ contract RinkebyRoullete is usingProvable {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] + winnings - currentBet.betAmount;
             //subtracting original bet amount b/c it's added at the beginning of the round
             //emit event
-            emit Winning("Congrats! You won! Your account balance has been updated!");
+            emit BettingResult("Congrats! You won! Your account balance has been updated!");
         } else {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
-            emit Losing("You lost. Better luck next time!");
+            emit BettingResult("You lost. Better luck next time!");
         }
 
         betHasBeenMade = false;
+        betting = false;
+    }
 
+    modifier notBetting {
+        require(betting == false);
+        _;
     }
 }
