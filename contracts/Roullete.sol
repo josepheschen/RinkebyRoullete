@@ -98,7 +98,6 @@ contract RinkebyRoullete is usingProvable {
     function roulleteRoll() public payable {
         require(msg.sender == currentBet.player);
         require(betHasBeenMade == true);
-        betHasBeenMade = false;
 
         emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
         provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
@@ -176,5 +175,8 @@ contract RinkebyRoullete is usingProvable {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
             emit Losing("You lost. Better luck next time!");
         }
+
+        betHasBeenMade = false;
+
     }
 }
