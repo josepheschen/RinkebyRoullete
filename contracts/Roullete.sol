@@ -101,24 +101,16 @@ contract RinkebyRoullete is usingProvable {
     }
 
 
-    function roulleteRoll() public {
+    function roulleteRoll() public payable {
+        require(msg.sender == currentBet.player);
         require(betHasBeenMade == true);
         betHasBeenMade = false;
 
+        emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
+        provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
 
-        //get random number
-        generateRandomNumber();
-        //check to see if user has won
-
-        bool didUserWin = didWin();
-
-        if (didUserWin) {
-            uint256 winnings = currentBet.betAmount * winningsMultipliers[currentBet.betType];
-            accountBalance[currentBet.player] = accountBalance[currentBet.player] + winnings - currentBet.betAmount;
-            //subtracting original bet amount b/c it's added at the beginning of the round
-        } else {
-            accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
-        }
+        //wait for randomNumber
+        //rest is done in callback
 
     }
 
@@ -167,12 +159,18 @@ contract RinkebyRoullete is usingProvable {
         require(msg.sender == provable_cbAddress());
         emit LogNewRandomNumber(_result);
         randomNumber = parseInt(_result);
+
+        bool didUserWin = didWin();
+
+        if (didUserWin) {
+            uint256 winnings = currentBet.betAmount * winningsMultipliers[currentBet.betType];
+            accountBalance[currentBet.player] = accountBalance[currentBet.player] + winnings - currentBet.betAmount;
+            //subtracting original bet amount b/c it's added at the beginning of the round
+        } else {
+            accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
+        }
     }
 
-    function generateRandomNumber() public payable {
-        emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
-        provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
-    }
 
 
 }
