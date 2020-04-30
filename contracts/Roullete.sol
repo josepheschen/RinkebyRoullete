@@ -44,7 +44,7 @@ contract RinkebyRoullete is usingProvable {
         address player;
     }
 
-    Bet currentBet;
+    Bet public currentBet;
 
     // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
     uint256 public randomNumber;
@@ -74,7 +74,7 @@ contract RinkebyRoullete is usingProvable {
             player: msg.sender
         }));
 
-        accountBalance[msg.sender] == 69;
+        accountBalance[msg.sender] = _bAmount;
 
     }
 
@@ -163,12 +163,6 @@ contract RinkebyRoullete is usingProvable {
         }
         return false;
     }
-
-// Leaving this public for testing. Will want to make non public after we are sure that random number generation works
-    uint256 public randomNumber;
-
-    event LogNewProvableQuery(string description);
-    event LogNewRandomNumber(string number);
 
     function __callback(bytes32 _myid, string memory _result) public{
         require(msg.sender == provable_cbAddress());
