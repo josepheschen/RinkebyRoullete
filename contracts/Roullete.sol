@@ -12,12 +12,14 @@ contract RinkebyRoullete is usingProvable {
     uint[] acceptableBetSpecifics;
 
     bool public betHasBeenMade;
+    bool betting;
 
     constructor() public {
         rouletteOwner = msg.sender;
         winningsMultipliers = [35, 11, 3, 2, 2];
         acceptableBetSpecifics = [36, 11 , 2, 1, 1];
         betHasBeenMade = false;
+        betting = false;
     }
 
     /* We are going to be handling 5 different kinds of bets:
@@ -46,19 +48,14 @@ contract RinkebyRoullete is usingProvable {
 
     Bet public currentBet;
 
-    // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
-    uint256 public randomNumber;
-
-    event LogNewProvableQuery(string description);
-    event LogNewRandomNumber(string number);
-
-    function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
+    function placeBet(uint8 _bType, uint64 _bSpecifics) payable public notBetting {
         require(betHasBeenMade == false);
+        require(msg.value > 10000000000000000 /* this is 0.01 ETH */);
+        require(msg.value <= 2000000000000000000 /* no bets higher than 2 ETH */);
         betHasBeenMade = true;
         //first make sure there was no tampering with how much was paid and the call of the funtion tracking the amount
         //require(msg.value / 1000000000000000000 /* this is the eth to wei conversion, now our units are in ETH*/  == _bAmount);
 
-        require(msg.value > 10000000000000000 /* this is 0.01 ETH */);
         uint256 _bAmount = msg.value;
 
         //make sure the betType is valid as well
@@ -82,7 +79,7 @@ contract RinkebyRoullete is usingProvable {
         require(msg.value > 1);
     }
 
-    function cashOut() public payable{
+    function cashOut() public payable notBetting {
         address payable sender = msg.sender;
         uint256 balance = accountBalance[sender];
         require(balance > 0);
@@ -95,16 +92,16 @@ contract RinkebyRoullete is usingProvable {
         return address(this).balance;
     }
 
-    function houseCashOut() payable public {
+    function houseCashOut() payable public notBetting {
         require(msg.sender == rouletteOwner);
         rouletteOwner.transfer(address(this).balance);
     }
 
 
-    function roulleteRoll() public payable {
+    function roulleteRoll() public payable notBetting {
         require(msg.sender == currentBet.player);
         require(betHasBeenMade == true);
-        betHasBeenMade = false;
+        betting = true;
 
         emit LogNewProvableQuery("Provable query was sent, standing by for the answer...");
         provable_query("URL", "https://www.random.org/integers/?num=1&min=0&max=36&col=1&base=10&format=plain&rnd=new");
@@ -155,7 +152,16 @@ contract RinkebyRoullete is usingProvable {
         return false;
     }
 
-    function __callback(bytes32 _myid, string memory _result) public{
+    //add events to emit
+    // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
+    uint256 public randomNumber;
+
+    event LogNewProvableQuery(string description);
+    event LogNewRandomNumber(string number);
+
+    event BettingResult(string description);
+
+    function __callback(bytes32 _myid, string memory _result) public {
         require(msg.sender == provable_cbAddress());
         emit LogNewRandomNumber(_result);
         randomNumber = parseInt(_result);
@@ -166,11 +172,19 @@ contract RinkebyRoullete is usingProvable {
             uint256 winnings = currentBet.betAmount * winningsMultipliers[currentBet.betType];
             accountBalance[currentBet.player] = accountBalance[currentBet.player] + winnings - currentBet.betAmount;
             //subtracting original bet amount b/c it's added at the beginning of the round
+            //emit event
+            emit BettingResult("Congrats! You won! Your account balance has been updated!");
         } else {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
+            emit BettingResult("You lost. Better luck next time!");
         }
+
+        betHasBeenMade = false;
+        betting = false;
     }
 
-
-
+    modifier notBetting {
+        require(betting == false);
+        _;
+    }
 }
