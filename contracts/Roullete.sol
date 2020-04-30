@@ -159,7 +159,7 @@ contract RinkebyRoullete is usingProvable {
     event Winning(string description);
     event Losing(string description);
 
-    function __callback(bytes32 _myid, string memory _result) public{
+    function __callback(bytes32 _myid, string memory _result) public {
         require(msg.sender == provable_cbAddress());
         emit LogNewRandomNumber(_result);
         randomNumber = parseInt(_result);
@@ -171,7 +171,7 @@ contract RinkebyRoullete is usingProvable {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] + winnings - currentBet.betAmount;
             //subtracting original bet amount b/c it's added at the beginning of the round
             //emit event
-            emit Winning("Congrats! You won " + (winnings) + " wei. About " + (winnings/1000000000000000000) + " ether!");
+            emit Winning("Congrats! You won! Your account balance has been updated!");
         } else {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
             emit Losing("You lost. Better luck next time!");
