@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity >= 0.5.0 < 0.6.0;
 import "github.com/oraclize/ethereum-api/provableAPI.sol";
 
 contract RinkebyRoullete is usingProvable {
@@ -102,7 +102,6 @@ contract RinkebyRoullete is usingProvable {
 
 
     function roulleteRoll() public {
-        //make sure bet exists
         require(betHasBeenMade == true);
         betHasBeenMade = false;
 
