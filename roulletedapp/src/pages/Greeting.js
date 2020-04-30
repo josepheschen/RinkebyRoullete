@@ -3,12 +3,12 @@ import {connect} from "react-redux";
 import { Button, Header, Icon, Form, Message } from "semantic-ui-react";
 import {Link} from "react-router-dom";
 
-// function mapStateToProps(state) {
-//     return {
-//         CZ: state.CZ,//change to contract variable
-//         userAddress: state.userAddress
-//     };
-// }
+function mapStateToProps(state) {
+    return {
+        CZ: state.CZ,//change to contract variable
+        userAddress: state.userAddress
+    };
+}
 
 class Greeting extends Component {
     state = {
