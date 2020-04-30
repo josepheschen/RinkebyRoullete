@@ -1,14 +1,13 @@
 import React, { Component } from "react";
 import {connect} from "react-redux";
-import { Button, Header, Icon, Form, Message } from "semantic-ui-react";
-import {Link} from "react-router-dom";
+import { Button, Icon, Form, Message, Modal, Segment, Grid, Label} from "semantic-ui-react";
 
-// function mapStateToProps(state) {
-//     return {
-//         CZ: state.CZ,//change to contract variable
-//         userAddress: state.userAddress
-//     };
-// }
+function mapStateToProps(state) {
+    return {
+        CZ: state.CZ,//change to contract variable
+        userAddress: state.userAddress
+    };
+}
 
 class Greeting extends Component {
     state = {
@@ -18,6 +17,18 @@ class Greeting extends Component {
         betSpecifics: "",
         loading: false
     };
+    modal = (
+        <Modal style={{textAlign:"center"}} trigger={<Button>Rules</Button>}>
+            <Modal.Content>
+                <Modal.Description>
+                    <p>Straight up: betSpecifics = number</p>
+                    <p>Street or row: betSpecifics = row user is referencing (0 = 123, 1 = 456, etc.)</p>
+                    <p>Line or Column: betSpecifics = column user is referencing</p>
+                    <p>Color: betSpecifics = 0 for black, 1 for red</p>
+                    <p>Odd/Even: betSpecifics = 0 for even, 1 for odd</p>
+                </Modal.Description>
+            </Modal.Content>
+        </Modal>);
     //change to work with our contract submit method
     onSubmit = async event => {
         event.preventDefault();
@@ -33,6 +44,8 @@ class Greeting extends Component {
                 .send({
                     from: this.props.userAddress
                 });
+            let msg =
+
 
             this.setState({
                 loading: false,
@@ -69,6 +82,17 @@ class Greeting extends Component {
           To begin, select a bet type, amount and specifics below.
           <br /> Then once you are ready to bet, press the bet button!
         </p>
+          <br/>
+          <div>
+              <Segment>
+                  <Grid>
+                      <Grid.Column textAlign="center">
+                          {this.modal}
+                      </Grid.Column>
+                  </Grid>
+              </Segment>
+          </div>
+          <br/>
 
           <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
               <Form.Group inline>
@@ -120,8 +144,9 @@ class Greeting extends Component {
                   />
               </Form.Field>
               <Form.Field>
-                  <label>Bet Amount(Greater than 0.01 ETH)</label>
+                  <label>Bet Amount</label>
                   <input
+                      placeholder="Greater than 0.01 ETH"
                       onChange={event =>
                           this.setState({
                               betAmount: event.target.value
