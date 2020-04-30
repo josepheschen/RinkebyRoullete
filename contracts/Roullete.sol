@@ -46,12 +46,6 @@ contract RinkebyRoullete is usingProvable {
 
     Bet public currentBet;
 
-    // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
-    uint256 public randomNumber;
-
-    event LogNewProvableQuery(string description);
-    event LogNewRandomNumber(string number);
-
     function placeBet(uint8 _bType, uint64 _bSpecifics) payable public  {
         require(betHasBeenMade == false);
         betHasBeenMade = true;
@@ -155,6 +149,16 @@ contract RinkebyRoullete is usingProvable {
         return false;
     }
 
+    //add events to emit
+    // Leaving this public for testing. Will want to make non public after we are sure that random number generation works
+    uint256 public randomNumber;
+
+    event LogNewProvableQuery(string description);
+    event LogNewRandomNumber(string number);
+
+    event Winning(string description);
+    event Losing(string description);
+
     function __callback(bytes32 _myid, string memory _result) public{
         require(msg.sender == provable_cbAddress());
         emit LogNewRandomNumber(_result);
@@ -166,11 +170,11 @@ contract RinkebyRoullete is usingProvable {
             uint256 winnings = currentBet.betAmount * winningsMultipliers[currentBet.betType];
             accountBalance[currentBet.player] = accountBalance[currentBet.player] + winnings - currentBet.betAmount;
             //subtracting original bet amount b/c it's added at the beginning of the round
+            //emit event
+            emit Winning("Congrats! You won " + (winnings) + " wei. About " + (winnings/1000000000000000000) + " ether!");
         } else {
             accountBalance[currentBet.player] = accountBalance[currentBet.player] - currentBet.betAmount;
+            emit Losing("You lost. Better luck next time!");
         }
     }
-
-
-
 }
