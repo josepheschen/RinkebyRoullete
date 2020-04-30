@@ -15,7 +15,7 @@ contract RinkebyRoullete is usingProvable {
 
     constructor() public {
         rouletteOwner = msg.sender;
-        winningsMultipliers = [35, 11, 5, 1, 1];
+        winningsMultipliers = [35, 11, 3, 2, 2];
         acceptableBetSpecifics = [36, 11 , 2, 1, 1];
         betHasBeenMade = false;
     }
@@ -23,7 +23,7 @@ contract RinkebyRoullete is usingProvable {
     /* We are going to be handling 5 different kinds of bets:
     0. Straight up (35:1)
     1. Street or Row (11:1)
-    2. Line or Column (5:1)
+    2. Line or Column (3:1)
     3. Color (1:1)
     4. Odd/Even (1:1)
 
@@ -74,7 +74,7 @@ contract RinkebyRoullete is usingProvable {
             player: msg.sender
         }));
 
-        accountBalance[msg.sender] == _bAmount;
+        accountBalance[msg.sender] == 69;
 
     }
 
