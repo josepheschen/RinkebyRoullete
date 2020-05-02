@@ -23,7 +23,7 @@ class Greeting extends Component {
                 <Modal.Description>
                     <p>Straight up: betSpecifics = number</p>
                     <p>Street or row: betSpecifics = row user is referencing (0 = 123, 1 = 456, etc.)</p>
-                    <p>Line or Column: betSpecifics = column user is referencing</p>
+                    <p>Line or Column: betSpecifics = column user is referencing ( 0 = 1,4,7..., 1 = 2,5,8... etc.)</p>
                     <p>Color: betSpecifics = 0 for black, 1 for red</p>
                     <p>Odd/Even: betSpecifics = 0 for even, 1 for odd</p>
                 </Modal.Description>
@@ -112,7 +112,7 @@ class Greeting extends Component {
                       })}
                   />
                   <Form.Radio
-                      label='Line/Col (5:1)'
+                      label='Line/Col (3:1)'
                       checked={this.state.betType === 2}
                       onChange={event => this.setState({
                           betType: 2
