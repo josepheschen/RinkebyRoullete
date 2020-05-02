@@ -58,8 +58,12 @@ class Greeting extends Component {
         //interact with contract with donation amount now in state
     }
 
+    async onCashOut() {
+        //on cashout skeleton
+    }
+
     //change to work with our contract submit method
-    onSubmit = async event => {
+    async onSubmit() {
         event.preventDefault();
         this.setState({
             loading: true,
@@ -69,10 +73,15 @@ class Greeting extends Component {
         try {
             console.log(this.props);
             let result = this.props.CZ.methods
-                .transferFrom(this.props.userAddress, this.state.value, this.state.zombieId) // contains the zombie ID and the new name
+                .placeBet(this.props.userAddress, this.state.value, this.state.zombieId) // contains the zombie ID and the new name
                 .send({
                     from: this.props.userAddress
                 });
+
+            let asdf = this.props.CZ.methods
+                .rouletteRoll()
+
+
             let msg =
 
 
@@ -185,9 +194,12 @@ class Greeting extends Component {
                   />
               </Form.Field>
               <Message error header="Oops!" content={this.state.errorMessage} />
-              <Button primary type="submit" loading={this.state.loading}>
+              <Button primary type="submit" loading={this.state.loading} onClick={this.onSubmit}>
                   <Icon name="check" />
                   Bet!
+              </Button>
+
+              <Button primary type="submit" onClick={this.onCashOut}>
               </Button>
               <hr />
               <h2>{this.state.message}</h2>
