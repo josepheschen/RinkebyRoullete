@@ -15,9 +15,10 @@ class Greeting extends Component {
         betType: null,
         betAmount: 0,
         betSpecifics: "",
-        loading: false
+        loading: false,
+        donateAmount: 0
     };
-    modal = (
+    modalRules = (
         <Modal style={{textAlign:"center"}} trigger={<Button>Rules</Button>}>
             <Modal.Content>
                 <Modal.Description>
@@ -29,6 +30,34 @@ class Greeting extends Component {
                 </Modal.Description>
             </Modal.Content>
         </Modal>);
+
+    modalDonate = (
+        <Modal style={{textAlign:"center"}} trigger={<Button>Rules</Button>}>
+            <Modal.Content>
+                <Modal.Description>
+                    <Form.Field>
+                        <label>Please enter an amount you would like to donate to the house</label>
+                        <input
+                            placeholder="Greater than 0.01 ETH"
+                            onChange={event =>
+                                this.setState({
+                                    donateAmount: event.target.value
+                                })
+                            }
+                        />
+                    </Form.Field>
+                    <Button primary type="submit" loading={this.state.loading} onClick={this.submitDonate}>
+                        <Icon name="check" />
+                        Donate
+                    </Button>
+                </Modal.Description>
+            </Modal.Content>
+        </Modal>);
+
+    async submitDonate() {
+        //interact with contract with donation amount now in state
+    }
+
     //change to work with our contract submit method
     onSubmit = async event => {
         event.preventDefault();
@@ -87,7 +116,8 @@ class Greeting extends Component {
               <Segment>
                   <Grid>
                       <Grid.Column textAlign="center">
-                          {this.modal}
+                          {this.modalRules}
+                          {this.modalDonate}
                       </Grid.Column>
                   </Grid>
               </Segment>
