@@ -1,5 +1,5 @@
 pragma solidity >= 0.5.0 < 0.6.0;
-import "github.com/oraclize/ethereum-api/provableAPI.sol";
+import "./provableAPI.sol";
 
 contract RinkebyRoullete is usingProvable {
 

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import getWeb3 from "./utils/getWeb3";
 import initBlockchain from "./utils/initBlockchain";
-import getZombieCount from "./utils/getZombieCount";
+//import getZombieCount from "./utils/getZombieCount";
 
 import { HashRouter, Route } from "react-router-dom";
 import { Container } from "semantic-ui-react";
@@ -10,13 +10,13 @@ import { Provider } from "react-redux";
 import TopBar from "./components/TopBar";
 
 import Greeting from "./pages/Greeting";
-import MyZombieInventory from "./pages/MyZombieInventory";
+/*import MyZombieInventory from "./pages/MyZombieInventory";
 import ZombieInventory from "./pages/ZombieInventory";
 import AttackZombie from "./pages/AttackZombie";
 import FeedOnKitty from "./pages/FeedOnKitty";
 import ChangeName from "./pages/ChangeName";
 import LevelUp from "./pages/LevelUp";
-import TransferZombie from "./pages/TransferZombie";
+import TransferZombie from "./pages/TransferZombie";*/
 
 import store from "./redux/store";
 

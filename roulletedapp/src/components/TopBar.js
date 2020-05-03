@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 
 import { Button } from "semantic-ui-react";
 
-import CreateZombie from "./CreateZombie";
+//import CreateZombie from "./CreateZombie";
 
 import { Menu, Header } from "semantic-ui-react";
 

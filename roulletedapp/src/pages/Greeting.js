@@ -5,7 +5,8 @@ import { Button, Icon, Form, Message, Modal, Segment, Grid, Label} from "semanti
 function mapStateToProps(state) {
     return {
         CZ: state.CZ,//change to contract variable
-        userAddress: state.userAddress
+        userAddress: state.userAddress,
+		web3Instance: state.web3Instance
     };
 }
 
@@ -32,7 +33,7 @@ class Greeting extends Component {
         </Modal>);
 
     modalDonate = (
-        <Modal style={{textAlign:"center"}} trigger={<Button>Rules</Button>}>
+        <Modal style={{textAlign:"center"}} trigger={<Button>Donate</Button>}>
             <Modal.Content>
                 <Modal.Description>
                     <Form.Field>
@@ -46,7 +47,7 @@ class Greeting extends Component {
                             }
                         />
                     </Form.Field>
-                    <Button primary type="submit" loading={this.state.loading} onClick={this.submitDonate}>
+							<Button primary type="submit" loading={this.state.loading} onClick={()=>{this.submitDonate()}}>
                         <Icon name="check" />
                         Donate
                     </Button>
@@ -54,33 +55,102 @@ class Greeting extends Component {
             </Modal.Content>
         </Modal>);
 
-    async submitDonate() {
-        //interact with contract with donation amount now in state
-    }
-
-    async onCashOut() {
-        //on cashout skeleton
-    }
-
-    //change to work with our contract submit method
-    async onSubmit() {
-        event.preventDefault();
+    submitDonate = async () => {
         this.setState({
             loading: true,
             errorMessage: "",
             message: "waiting for blockchain transaction to complete..."
         });
         try {
-            console.log(this.props);
+			alert(this.props.web3Instance.utils.toWei(this.state.donateAmount, "ether"));
             let result = this.props.CZ.methods
-                .placeBet(this.props.userAddress, this.state.value, this.state.zombieId) // contains the zombie ID and the new name
+                .donateToHouse() // contains the zombie ID and the new name
+                .send({
+					value: this.props.web3Instance.utils.toWei(this.state.donateAmount, "ether"),
+                    from: this.props.userAddress
+                });
+
+            let msg =
+
+
+            this.setState({
+                loading: false,
+                message: result
+            });
+        } catch (err) {
+            this.setState({
+                loading: false,
+                errorMessage: err.message,
+                message: "User rejected transaction"
+            });
+				alert(err);
+        }
+    }
+
+    onCashOut = async () => {
+        this.setState({
+            loading: true,
+            errorMessage: "",
+            message: "waiting for blockchain transaction to complete..."
+        });
+        try {
+            let result = this.props.CZ.methods
+                .cashOut() // contains the zombie ID and the new name
                 .send({
                     from: this.props.userAddress
                 });
 
-            let asdf = this.props.CZ.methods
-                .rouletteRoll()
+            let msg =
 
+
+            this.setState({
+                loading: false,
+                message: result
+            });
+        } catch (err) {
+            this.setState({
+                loading: false,
+                errorMessage: err.message,
+                message: "User rejected transaction"
+            });
+				alert(err);
+        }
+    }
+
+    //change to work with our contract submit method
+    onSubmit = async event => {
+       // event.preventDefault();
+        this.setState({
+            loading: true,
+            errorMessage: "",
+            message: "waiting for blockchain transaction to complete..."
+        });
+        try {
+             let result = await this.props.CZ.methods
+                .placeBet(this.state.betType, this.state.betSpecifics)
+                .send({
+					value: this.props.web3Instance.utils.toWei(this.state.betAmount, "ether"),
+                    from: this.props.userAddress
+                });
+
+            let roll = await this.props.CZ.methods
+                .roulleteRoll()
+				.send({
+					from: this.props.userAddress
+				});
+				
+				this.props.CZ.events.allEvents()
+				.on('data', (event) => {
+					console.log(event);
+					if(event.event.localeCompare("BettingResult") == 0){
+						alert(event.returnValues['0']);
+		            	this.setState({
+		                	loading: false,
+		                	message: event.returnValues['0']
+		            	});
+					}
+				})
+				.on('error', console.error);
 
             let msg =
 
@@ -133,7 +203,7 @@ class Greeting extends Component {
           </div>
           <br/>
 
-          <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
+          <Form error={!!this.state.errorMessage}>
               <Form.Group inline>
                   <label>Bet Type</label>
                   <Form.Radio
@@ -200,9 +270,10 @@ class Greeting extends Component {
               </Button>
 
               <Button primary type="submit" onClick={this.onCashOut}>
+					  Cashout
               </Button>
               <hr />
-              <h2>{this.state.message}</h2>
+              <h2>{this.props.message}</h2>
           </Form>
 
       </div>
