@@ -1,5 +1,5 @@
 //change this to our abi
-import CryptoZombiesContract from "../contract_ABI/CryptoZombies.json";
+import CryptoZombiesContract from "../contract_ABI/Roullete.json";
 import store from "../redux/store";
 
 //import blockchainInitialized from "../redux/modules/czAppDuck";  // for some unknown reason, the duck doesn't work!
